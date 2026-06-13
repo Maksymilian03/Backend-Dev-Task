@@ -1,4 +1,7 @@
 import math
+from exceptions import NoValidOffsetError
+from segmentation import Segment
+
 
 class RafterGrid:
     """
@@ -35,3 +38,41 @@ class RafterGrid:
             rafter_position = first_rafter + i * self.SPACING
             i += 1
         return list_of_rafters
+
+
+class RafterOffsetFinder:
+    """
+    Represent of offset finder
+    """
+    EDGE_CLEARANCE = 2
+    MAX_CANTILEVER = 16
+    def __init__(self, step=0.05):
+        self.step = step
+
+    def find_offset(self, segments: list[Segment]) -> float:
+        """
+    Find a rafter grid offset satisfying mounting constraints for all segments.
+
+    Args:
+        segments: Contiguous panel segments to validate against.
+
+    Returns:
+        The first offset in [0, 16) for which every segment has a rafter
+        within both cantilever windows.
+
+    Raises:
+        NoValidOffsetError: If no offset satisfies the constraints.
+    """
+        for i in range(320):
+            r = i * self.step
+            grid = RafterGrid(r)
+            if all(self._segment_ok(segment, grid) for segment in segments):
+                return r
+        raise NoValidOffsetError("No rafter offset in [0, 16) found.")
+
+    def _segment_ok(self, segment, grid):
+        return grid.rafters_in_range(
+        segment.left + self.EDGE_CLEARANCE, segment.left + self.MAX_CANTILEVER
+        ) and grid.rafters_in_range(
+        segment.right - self.MAX_CANTILEVER, segment.right - self.EDGE_CLEARANCE)
+    
