@@ -4,8 +4,6 @@ from exceptions import NoValidOffsetError
 
 class MountCalculator:
     """Calculates mount positions where panels attach to rafters."""
-    def __init__(self):
-        pass
 
     def calculate(self, segments, grid) -> list[Point]:
         """
@@ -32,10 +30,12 @@ class MountCalculator:
             for panel in segment.panels:
                 rafters = grid.rafters_in_range(panel.left + 2, panel.right - 2)
                 if not rafters:
-                    raise ValueError()
+                    raise NoValidOffsetError(
+                        f"Panel at ({panel.x}, {panel.y}) has no rafter in its allowed zone."
+                    )
                 chosen = [rafters[0], rafters[-1]] if len(rafters) > 1 else [rafters[0]]
                 for x in chosen:
                     points.append(Point(x, panel.top))
                     points.append(Point(x, panel.bottom))
         return points
-                
+    

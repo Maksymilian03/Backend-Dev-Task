@@ -1,55 +1,38 @@
 class Panel:
-    """
-    A panel is a rectangular area defined by its top-left corner (x, y).
-    Can calculate the coordinates of its corners and its left, right, top, and bottom edges.
-    """
+    """A rectangular solar panel defined by its top-left corner."""
+
     WIDTH = 44.7
     HEIGHT = 71.1
-    def __init__(self, x, y):
+
+    def __init__(self, x: float, y: float):
         self.x = x
         self.y = y
 
-
-    def corners(self):
-        """
-        Returns the coordinates of the corners of the panel.
-        """
+    def corners(self) -> list[tuple[float, float]]:
+        """Return the four corner coordinates in order: top-left, top-right, bottom-right, bottom-left."""
         left_top = (self.x, self.y)
         right_top = (self.x + self.WIDTH, self.y)
         right_bottom = (self.x + self.WIDTH, self.y + self.HEIGHT)
         left_bottom = (self.x, self.y + self.HEIGHT)
-        return [
-            left_top,
-            right_top,
-            right_bottom,
-            left_bottom
-        ]
-    
+        return [left_top, right_top, right_bottom, left_bottom]
+
     @property
-    def left(self):
-        """
-        Returns the left edge of the panel.
-        """
+    def left(self) -> float:
+        """X coordinate of the left edge."""
         return self.x
-    
+
     @property
-    def right(self):
-        """
-        Returns the right edge of the panel.
-        """
+    def right(self) -> float:
+        """X coordinate of the right edge."""
         return self.x + self.WIDTH
-    
+
     @property
-    def top(self):
-        """
-        Returns the top edge of the panel.
-        """
+    def top(self) -> float:
+        """Y coordinate of the top edge."""
         return self.y
-    
+
     @property
-    def bottom(self):
-        """
-        Returns the bottom edge of the panel.
-        """
+    def bottom(self) -> float:
+        """Y coordinate of the bottom edge."""
         return self.y + self.HEIGHT
     

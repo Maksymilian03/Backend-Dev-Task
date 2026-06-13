@@ -3,60 +3,58 @@ from dataclasses import dataclass
 
 @dataclass
 class Segment:
-    """
-    Represents a segment of panels.
-    """
+    """A contiguous run of panels in one row (sorted by x)."""
+
     panels: list
 
     @property
-    def left(self):
-        """
-        Returns the left edge of the segment, which is the minimum left edge of its panels.
-        """
+    def left(self) -> float:
+        """X coordinate of the leftmost panel's left edge."""
         return self.panels[0].left
-    
+
     @property
-    def right(self):
-        """
-        Returns the right edge of the segment, which is the maximum right edge of its panels.
-        """
+    def right(self) -> float:
+        """X coordinate of the rightmost panel's right edge."""
         return self.panels[-1].right
-    
-    
+
 
 class PanelSegmenter:
-    """
-    Segments panels into groups based on their horizontal proximity.
-    """
+    """Groups panels into contiguous segments per row, split by horizontal gaps."""
+
     MAX_HORIZONTAL_GAP = 1
 
-    def __init__(self):
-        self.segments = []
+    def build_segments(self, panels) -> list[Segment]:
+        """
+        Group panels by row (same y), then split each row into contiguous
+        segments wherever the horizontal gap between adjacent panels reaches
+        MAX_HORIZONTAL_GAP.
 
-    def build_segments(self, panels):
+        Args:
+            panels: List of Panel objects.
+
+        Returns:
+            List of Segments, each containing panels sorted by x.
         """
-        Segments the panels into groups based on their horizontal proximity.
-        Panels that are within max_horizontal_gap of each other are grouped together.
-        """
-        
+        segments = []
         if not panels:
-            return self.segments
+            return segments
+
         panels_by_y = {}
         for panel in panels:
-                y = panel.top
-                if y not in panels_by_y:
-                    panels_by_y[y] = []
-                panels_by_y[y].append(panel)
-            
+            y = panel.top
+            if y not in panels_by_y:
+                panels_by_y[y] = []
+            panels_by_y[y].append(panel)
+
         for y in sorted(panels_by_y.keys()):
-            panels = sorted(panels_by_y[y], key=lambda panel: panel.left)
-            current_segment = [panels[0]]
-            for panel in panels[1:]:
+            row = sorted(panels_by_y[y], key=lambda p: p.left)
+            current_segment = [row[0]]
+            for panel in row[1:]:
                 if panel.left - current_segment[-1].right < self.MAX_HORIZONTAL_GAP:
                     current_segment.append(panel)
                 else:
-                    self.segments.append(Segment(current_segment))
+                    segments.append(Segment(current_segment))
                     current_segment = [panel]
-            self.segments.append(Segment(current_segment))
-        return self.segments
-
+            segments.append(Segment(current_segment))
+        return segments
+    

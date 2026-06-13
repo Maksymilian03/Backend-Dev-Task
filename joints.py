@@ -7,7 +7,7 @@ class JointCalculator:
 
     DISTANCE_THRESHOLD = 1
 
-    def calculate(self, panels) -> list[Point]:
+    def calculate(self, panels: list[Panel]) -> list[Point]:
         """
         Compute joint positions for all horizontal panel meetings.
 
@@ -51,11 +51,15 @@ class JointCalculator:
                 joints.append(Point(x_joint, y_bottom))
         return joints
 
-    def _maybe_merge_with_lower(self, x_joint, y_bottom, y_current, sorted_ys, rows):
-        """
-        Shift y_bottom to the middle of the vertical gap if a panel exists
-        in the row below near x_joint. Otherwise return y_bottom unchanged.
-        """
+    def _maybe_merge_with_lower(
+        self,
+        x_joint: float,
+        y_bottom: float,
+        y_current: float,
+        sorted_ys: list[float],
+        rows: dict,
+    ) -> float:
+        """Shift y_bottom to the middle of the vertical gap if a panel in the row below sits near x_joint."""
         for y_other in sorted_ys:
             if y_other <= y_current:
                 continue
@@ -65,11 +69,15 @@ class JointCalculator:
                     return (y_bottom + y_other) / 2
         return y_bottom
 
-    def _maybe_merge_with_upper(self, x_joint, y_top, y_current, sorted_ys, rows):
-        """
-        Shift y_top to the middle of the vertical gap if a panel exists
-        in the row above near x_joint. Otherwise return y_top unchanged.
-        """
+    def _maybe_merge_with_upper(
+        self,
+        x_joint: float,
+        y_top: float,
+        y_current: float,
+        sorted_ys: list[float],
+        rows: dict,
+    ) -> float:
+        """Shift y_top to the middle of the vertical gap if a panel in the row above sits near x_joint."""
         for y_other in sorted_ys:
             if y_other >= y_current:
                 continue
@@ -80,11 +88,8 @@ class JointCalculator:
                     return (bottom_other + y_top) / 2
         return y_top
 
-    def _panel_near_x(self, row_panels, x_joint):
-        """
-        Return True if any panel in the row has a vertical edge within
-        DISTANCE_THRESHOLD of x_joint, or contains x_joint in its x range.
-        """
+    def _panel_near_x(self, row_panels: list[Panel], x_joint: float) -> bool:
+        """Return True if any panel in the row has an edge or interior within DISTANCE_THRESHOLD of x_joint."""
         for panel in row_panels:
             if abs(panel.left - x_joint) < self.DISTANCE_THRESHOLD:
                 return True
@@ -93,3 +98,4 @@ class JointCalculator:
             if panel.left < x_joint < panel.right:
                 return True
         return False
+    
